@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    ports:
+      - "3000:8080"
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OPENAI_API_BASE_URL=http://bedrock-proxy:8000/v1
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy-key}
+      - ENABLE_IMAGE_GENERATION=true
+      - IMAGE_GENERATION_ENGINE=openai
+      - AUTOMATIC1111_BASE_URL=http://bedrock-proxy:8000
+    depends_on:
+      - bedrock-proxy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  bedrock-proxy:
+    build:
+      context: ./bedrock-proxy
+      dockerfile: Dockerfile
+    container_name: bedrock-proxy
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
+      - SD_MODEL_ID=${SD_MODEL_ID:-stability.stable-diffusion-xl-v1}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  openwebui_data:
+
+networks:
+  app-network:
+    driver: bridge
