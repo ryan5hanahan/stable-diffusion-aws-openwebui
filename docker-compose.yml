@@ -7,15 +7,35 @@ services:
     ports:
       - "3000:8080"
     volumes:
-      - openwebui_data:/app/backend/data
+      - openwebui_data_:/app/backend/data
     environment:
-      - OPENAI_API_BASE_URL=http://bedrock-image-proxy:8000/v1
+      - OPENAI_API_BASE_URL=http://bedrock-access-gateway:8080/v1
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy-key}
       - ENABLE_IMAGE_GENERATION=true
-      - IMAGE_GENERATION_ENGINE=openai
+      - IMAGE_GENERATION_ENGINE=automatic1111
       - AUTOMATIC1111_BASE_URL=http://bedrock-image-proxy:8000
     depends_on:
+      - bedrock-access-gateway
       - bedrock-image-proxy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  bedrock-access-gateway:
+    build:
+      context: ./bedrock-access-gateway/src
+      dockerfile: Dockerfile_ecs
+    container_name: bedrock-access-gateway
+    ports:
+      - "8081:8080"
+    environment:
+      - API_ROUTE_PREFIX=/v1
+      - API_KEY=${OPENAI_API_KEY:-dummy-key}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
     restart: unless-stopped
     networks:
       - app-network
@@ -28,17 +48,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
-      - SD_MODEL_ID=${SD_MODEL_ID:-stability.stable-diffusion-xl-v1}
+      - SD_MODEL_ID=${SD_MODEL_ID:-stability.sd3-5-large-v1:0}
     restart: unless-stopped
     networks:
       - app-network
 
 volumes:
-  openwebui_data:
+  openwebui_data_:
 
 networks:
   app-network:
