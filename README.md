@@ -123,10 +123,10 @@ The new Stability AI API supports:
 
 ```bash
 # View logs
-docker-compose logs -f bedrock-proxy
+docker-compose logs -f bedrock-image-proxy
 
 # Rebuild after code changes
-docker-compose up -d --build bedrock-proxy
+docker-compose up -d --build bedrock-image-proxy
 
 # Stop services
 docker-compose down
@@ -143,7 +143,7 @@ docker-compose down
 - Check that Stability AI model access is enabled in AWS Console → Bedrock → Model access
 
 ### Images not generating
-- Check logs: `docker-compose logs bedrock-proxy`
+- Check logs: `docker-compose logs bedrock-image-proxy`
 - Test the proxy: `curl http://localhost:8000/health`
 
 ### Content filtered

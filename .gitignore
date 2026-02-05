@@ -3,6 +3,13 @@
 
 # Claude Code
 CLAUDE.md
+.claude/
+
+# Screenshots
+Screenshot*
+*.png
+*.jpg
+*.jpeg
 
 # Python
 __pycache__/

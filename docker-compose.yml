@@ -9,22 +9,22 @@ services:
     volumes:
       - openwebui_data:/app/backend/data
     environment:
-      - OPENAI_API_BASE_URL=http://bedrock-proxy:8000/v1
+      - OPENAI_API_BASE_URL=http://bedrock-image-proxy:8000/v1
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy-key}
       - ENABLE_IMAGE_GENERATION=true
       - IMAGE_GENERATION_ENGINE=openai
-      - AUTOMATIC1111_BASE_URL=http://bedrock-proxy:8000
+      - AUTOMATIC1111_BASE_URL=http://bedrock-image-proxy:8000
     depends_on:
-      - bedrock-proxy
+      - bedrock-image-proxy
     restart: unless-stopped
     networks:
       - app-network
 
-  bedrock-proxy:
+  bedrock-image-proxy:
     build:
-      context: ./bedrock-proxy
+      context: ./bedrock-image-proxy
       dockerfile: Dockerfile
-    container_name: bedrock-proxy
+    container_name: bedrock-image-proxy
     ports:
       - "8000:8000"
     environment:
